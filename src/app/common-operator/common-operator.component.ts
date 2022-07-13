@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { map, tap, Observable, switchMap } from 'rxjs';
+import { map, tap, Observable, switchMap, combineLatest, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-common-operator',
@@ -31,6 +31,22 @@ export class CommonOperatorComponent implements OnInit {
         }
       }
     }>('https://wallet.usongrat.tw/api/wallet/user', { code: 'LP3LEvEe' });
+  }
+  private getName2() {
+    return this.http.post<{
+      code: number;
+      status: string;
+      message: string;
+      data: {
+        wallet: {
+          users: {
+            id: number,
+            name: string,
+            is_admin: boolean
+          }[]
+        }
+      }
+    }>('https://wallet.usongrat.tw/api/wallet/user', { code: 'tVtaCfUS' });
   }
   private login(name: string) {
     return this.http.post<{
@@ -72,18 +88,38 @@ export class CommonOperatorComponent implements OnInit {
     });
   }
 
-  public doSwitchMap(){
+  public doSwitchMap() {
     this.title = 'switchMap';
     this.intro = '當你拿到Observable資料後，要轉換成另一個Observable，就可以使用switchMap。'
-    +'例如當你需要先透過第一個API取得A資料，然後要用A資料去Call第二個API，'
-    +'若不用switchMap 就會變成是第一次subscribe裡面call第二個API，然後再subscribe一次'
-    ;
+      + '例如當你需要先透過第一個API取得A資料，然後要用A資料去Call第二個API，'
+      + '若不用switchMap 就會變成是第一次subscribe裡面call第二個API，然後再subscribe一次'
+      ;
     this.getName().pipe(
       map(res => res.data.wallet.users.map(v => v.name)),
-      switchMap(name=>this.login(name[1]))
-    ).subscribe(res=>{
+      switchMap(name => this.login(name[1]))
+    ).subscribe(res => {
       this.res1 = res;
     });
+  }
+
+  public doCombineLatest() {
+    this.title = 'CombineLatest';
+    this.intro = '當你想要無序且一次處理多個Observable，且都拿到資料後進行後續處理時便可使用CombineLatest';
+    combineLatest(this.getName(), this.getName2())
+      .pipe(
+        map(([res1, res2]) => ({ data1: res1.data.wallet.users.map(v=>v.name), data2: res2.data.wallet.users.map(v=>v.name) }))
+      )
+      .subscribe(data => this.res1 = data);
+  }
+
+  public doForkJoin(){
+    this.title = 'forkJoin';
+    this.intro = '與 combineLatest 類似，差別在於 combineLatest 在 RxJS 整個資料流有資料變更時都會發生，而 forkJoin 會在所有 observable 都完成(complete)後，才會取得最終的結果，所以對於 Http Request 的整合，我們可以直接使用 forkJoin 因為 Http Request 只會發生一次';
+    forkJoin(this.getName(), this.getName2())
+      .pipe(
+        map(([res1, res2]) => ({ data1: res1.data.wallet.users.map(v=>v.name), data2: res2.data.wallet.users.map(v=>v.name) }))
+      )
+      .subscribe(data => this.res1 = data);
   }
 
   ngOnInit(): void {
