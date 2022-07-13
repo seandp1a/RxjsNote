@@ -1,0 +1,21 @@
+<div class="container d-flex flex-column align-items-center">
+  <div class="d-flex w-75 justify-content-between">
+    <button class="btn btn-secondary" (click)="doMap()">map</button>
+    <button class="btn btn-secondary" (click)="doTap()">tap</button>
+    <button class="btn btn-secondary" (click)="doSwitchMap()">switchMap</button>
+  </div>
+  <div class="w-75 mt-3">
+    <h4>{{title}}</h4>
+    <p>
+      {{intro}}
+    </p>
+    rowdata:
+    <pre class="mh-100 overflow-auto" style="height:150px ;" *ngIf="asyncPipeObservable$  | async  as rawData ;else loading ">{{ rawData| json }}</pre>
+    <ng-template #loading>Loading...</ng-template>
+
+  </div>
+
+  <div class="terminal w-100">
+    <pre>{{res1 | json}}</pre>
+  </div>
+</div>
