@@ -1,0 +1,16 @@
+<div class="container d-flex flex-column align-items-center">
+  <div class="d-flex w-75 justify-content-between">
+    <button class="btn btn-secondary" (click)="doDebounceTime()">debounceTime / distinctUntilChanged / filter</button>
+
+  </div>
+  <div class="w-75 mt-3">
+    <h4>{{title}}</h4>
+    <p [innerHtml]="intro"></p>
+    <div >Please Type LP3LEvEe</div>
+    <input class="form-control w-25" type="text" [(ngModel)]="inputText" (ngModelChange)="inputChange($event)">
+  </div>
+
+  <div class="terminal w-100">
+    <pre>{{res1 | json}}</pre>
+  </div>
+</div>
